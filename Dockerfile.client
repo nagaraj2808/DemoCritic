@@ -1,0 +1,25 @@
+# Use Node.js as the base image
+FROM node:16
+
+# Set working directory in the container
+WORKDIR /app
+
+# Copy package.json and package-lock.json
+COPY client/package*.json ./
+
+# Install dependencies
+RUN npm install --legacy-peer-deps
+
+# Copy the frontend code
+COPY client/ .
+
+# Build the React app
+RUN npm run build
+
+# Use an nginx base image for serving the static files
+FROM nginx:1.21
+COPY --from=0 /app/build /usr/share/nginx/html
+
+# Expose the port for Nginx (default is 80)
+EXPOSE 80
+
